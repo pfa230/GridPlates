@@ -61,6 +61,12 @@ You only need to do this once. This setting is required for OpenSCAD to export e
 
 Your slicer will now automatically arrange the panels, creating as many new plates as needed to fit all the parts.
 
+## Numbering Feature
+
+To know how to lay out the tiles using the numbers it is: Left to Right, Top to Bottom based on the top left corner of the plate.
+
+![numbering](images/numberinglegend.png)
+
 ## Build Plate Sizes
 
 | Printer Type | Size (mm) | Setting |
