@@ -66,9 +66,15 @@ Debug_Mode = false;
 // Amount of extra rounding to apply to the corners. This value is limited based on the size of the margins.
 Extra_Corner_Rounding = 0;
 
-// Create a thin support skin at the very top of the plate.
-Enable_Support_Layer = false;
+
+// Number of identical plates to stack vertically, separated by support layers.
+Stack_Height = 1;
+
+// Support interface between stacked plates.
 Support_Layer_Height = 0.2;
+
+// Gap between plates and support layers
+Layer_Gap = 0.01;
 
 /* [Export Options] */
 
@@ -306,14 +312,19 @@ module sub_baseplate(x_depth,y_depth,x_start_offset,x_end_offset,y_start_offset,
     r_fl=is_left&&is_front?outer_corner_radius:min_corner_radius;r_bl=is_left&&is_back?outer_corner_radius:min_corner_radius;r_br=is_right&&is_back?outer_corner_radius:min_corner_radius;r_fr=is_right&&is_front?outer_corner_radius:min_corner_radius;
     inner_margin=Interlock_Type==0?-non_gridplates_edge_clearance:tab_extent_allowance;
     m_l=is_left?margin_left:inner_margin;m_b=is_back?margin_back:inner_margin;m_r=is_right?margin_right:inner_margin;m_f=is_front?margin_front:inner_margin;
-    // Main body
-    baseplate_body(w,d,r_fl,r_bl,r_br,r_fr,m_l,m_b,m_r,m_f,is_left,is_right,is_front,is_back,plate_number);
-    // Support layer projected from the actual top profile of the finished body
-    if (Enable_Support_Layer) {
-        translate([0, 0, b_total_height])
-            linear_extrude(height = Support_Layer_Height)
-                projection(cut = true)
-                    baseplate_body(w,d,r_fl,r_bl,r_br,r_fr,m_l,m_b,m_r,m_f,is_left,is_right,is_front,is_back,plate_number);
+    stack_spacing = b_total_height + (Stack_Height>1 ? (2 * Layer_Gap + Support_Layer_Height) : 0);
+    for (level = [0:Stack_Height-1]) {
+        z_offset = level * stack_spacing;
+        // Main body
+        translate([0,0,z_offset])
+            baseplate_body(w,d,r_fl,r_bl,r_br,r_fr,m_l,m_b,m_r,m_f,is_left,is_right,is_front,is_back,plate_number);
+        // Support layer projected from the actual top profile of the finished body (between stacks)
+        if (level < Stack_Height-1) {
+            translate([0, 0, z_offset + b_total_height + Layer_Gap])
+                linear_extrude(height = Support_Layer_Height)
+                    projection(cut = true)
+                        baseplate_body(w,d,r_fl,r_bl,r_br,r_fr,m_l,m_b,m_r,m_f,is_left,is_right,is_front,is_back,plate_number);
+        }
     }
 }
 module sub_baseplate_from_list(plate, plate_number) { 
@@ -359,4 +370,3 @@ for (plate = plates) {
     }
 }
 
-assemble_and_number();
