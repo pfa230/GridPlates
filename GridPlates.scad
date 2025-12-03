@@ -66,6 +66,10 @@ Debug_Mode = false;
 // Amount of extra rounding to apply to the corners. This value is limited based on the size of the margins.
 Extra_Corner_Rounding = 0;
 
+// Create a thin support skin at the very top of the plate.
+Enable_Support_Layer = false;
+Support_Layer_Height = 0.2;
+
 /* [Export Options] */
 
 // Set to 'true' to center all plates at the origin for multi-plate 3MF export.
@@ -269,11 +273,7 @@ module emboss_plate_number_cutter(number, plate_width_units, plate_depth_units, 
         }
     }
 }
-module sub_baseplate(x_depth,y_depth,x_start_offset,x_end_offset,y_start_offset,y_end_offset, plate_number) {
-    w=x_end_offset-x_start_offset;d=y_end_offset-y_start_offset;is_left=x_start_offset==0;is_right=x_end_offset==units_wide;is_front=y_start_offset==0;is_back=y_end_offset==units_deep;
-    r_fl=is_left&&is_front?outer_corner_radius:min_corner_radius;r_bl=is_left&&is_back?outer_corner_radius:min_corner_radius;r_br=is_right&&is_back?outer_corner_radius:min_corner_radius;r_fr=is_right&&is_front?outer_corner_radius:min_corner_radius;
-    inner_margin=Interlock_Type==0?-non_gridplates_edge_clearance:tab_extent_allowance;
-    m_l=is_left?margin_left:inner_margin;m_b=is_back?margin_back:inner_margin;m_r=is_right?margin_right:inner_margin;m_f=is_front?margin_front:inner_margin;
+module baseplate_body(w,d,r_fl,r_bl,r_br,r_fr,m_l,m_b,m_r,m_f,is_left,is_right,is_front,is_back, plate_number) {
     difference() { 
         uncut_baseplate(w,d,r_fl,r_bl,r_br,r_fr,m_l,m_b,m_r,m_f);
         if(Interlock_Type>0) {
@@ -298,6 +298,22 @@ module sub_baseplate(x_depth,y_depth,x_start_offset,x_end_offset,y_start_offset,
             if (is_right && is_front) translate([w * Base_Unit_Width_Depth + m_r, -m_f, cutter_z]) cylinder(r = Corner_Cutout_in_mm, h = cutter_height);
         }
         emboss_plate_number_cutter(plate_number, w, d, m_l);
+    }
+}
+
+module sub_baseplate(x_depth,y_depth,x_start_offset,x_end_offset,y_start_offset,y_end_offset, plate_number) {
+    w=x_end_offset-x_start_offset;d=y_end_offset-y_start_offset;is_left=x_start_offset==0;is_right=x_end_offset==units_wide;is_front=y_start_offset==0;is_back=y_end_offset==units_deep;
+    r_fl=is_left&&is_front?outer_corner_radius:min_corner_radius;r_bl=is_left&&is_back?outer_corner_radius:min_corner_radius;r_br=is_right&&is_back?outer_corner_radius:min_corner_radius;r_fr=is_right&&is_front?outer_corner_radius:min_corner_radius;
+    inner_margin=Interlock_Type==0?-non_gridplates_edge_clearance:tab_extent_allowance;
+    m_l=is_left?margin_left:inner_margin;m_b=is_back?margin_back:inner_margin;m_r=is_right?margin_right:inner_margin;m_f=is_front?margin_front:inner_margin;
+    // Main body
+    baseplate_body(w,d,r_fl,r_bl,r_br,r_fr,m_l,m_b,m_r,m_f,is_left,is_right,is_front,is_back,plate_number);
+    // Support layer projected from the actual top profile of the finished body
+    if (Enable_Support_Layer) {
+        translate([0, 0, b_total_height])
+            linear_extrude(height = Support_Layer_Height)
+                projection(cut = true)
+                    baseplate_body(w,d,r_fl,r_bl,r_br,r_fr,m_l,m_b,m_r,m_f,is_left,is_right,is_front,is_back,plate_number);
     }
 }
 module sub_baseplate_from_list(plate, plate_number) { 
