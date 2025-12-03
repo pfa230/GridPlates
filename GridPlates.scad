@@ -41,7 +41,7 @@ Enable_Numbering = true;
 // Font size of the embossed number in millimeters.
 Number_Size = 3;
 // How deep to cut the number into the base. Should be a multiple of your layer height.
-Number_Depth = 0.4;
+Number_Depth = 0.2;
 
 /* [Advanced] */
 
@@ -256,13 +256,12 @@ module bottom_chamfer_cutter(units) {
     total_overshoot=max_margin+cut_overshoot;side_length=Bottom_Edge_Chamfer_in_mm+cut_overshoot*2;extrude_length=units*Base_Unit_Width_Depth+total_overshoot*2;
     translate([-cut_overshoot,-total_overshoot,-cut_overshoot]) rotate([-90,0,0]) linear_extrude(height=extrude_length) polygon(points=[[0,0],[0,-side_length],[side_length,0]]);
 }
-module emboss_plate_number_cutter(number, plate_width_units, plate_depth_units, left_margin) {
+module emboss_plate_number_cutter(number, plate_width_units, plate_depth_units, face_offset_x) {
     if (Enable_Numbering && plate_width_units > 1) {
         use_vertical = (number >= 10);
         y_center_pos = (plate_depth_units * Base_Unit_Width_Depth) / 2;
-        x_face = -left_margin;
-        // Engrave into the outer left wall: rotate text to extrude along -X so it reads correctly from the left side.
-        translate([x_face + Number_Depth + cut_overshoot, y_center_pos, b_total_height / 2]) {
+        // Engrave into the left-facing wall at the given X plane.
+        translate([face_offset_x + Number_Depth + cut_overshoot, y_center_pos, b_total_height / 2]) {
             rotate([0, -90, 0]) {
                 linear_extrude(height = Number_Depth + cut_overshoot * 2) {
                     if (use_vertical) {
@@ -304,7 +303,6 @@ module baseplate_body(w,d,r_fl,r_bl,r_br,r_fr,m_l,m_b,m_r,m_f,is_left,is_right,i
             if (is_right && is_back) translate([w * Base_Unit_Width_Depth + m_r, d * Base_Unit_Width_Depth + m_b, cutter_z]) cylinder(r = Corner_Cutout_in_mm, h = cutter_height);
             if (is_right && is_front) translate([w * Base_Unit_Width_Depth + m_r, -m_f, cutter_z]) cylinder(r = Corner_Cutout_in_mm, h = cutter_height);
         }
-        emboss_plate_number_cutter(plate_number, w, d, m_l);
     }
 }
 
@@ -316,9 +314,15 @@ module sub_baseplate(x_depth,y_depth,x_start_offset,x_end_offset,y_start_offset,
     stack_spacing = b_total_height + (Stack_Height>1 ? (2 * Layer_Gap + Support_Layer_Height) : 0);
     for (level = [0:Stack_Height-1]) {
         z_offset = level * stack_spacing;
-        // Main body
-        translate([0,0,z_offset])
+        // Main body with numbering always cut into the left-facing wall after tabs are removed.
+        translate([0,0,z_offset]) difference() {
             baseplate_body(w,d,r_fl,r_bl,r_br,r_fr,m_l,m_b,m_r,m_f,is_left,is_right,is_front,is_back,plate_number);
+            if (w > 1) {
+                // For external left edges, the wall starts at -m_l; for internal cuts, the remaining face sits at x=0.
+                face_offset_x = is_left ? -m_l : 0;
+                emboss_plate_number_cutter(plate_number, w, d, face_offset_x);
+            }
+        }
         // Support layer projected from the actual top profile of the finished body (between stacks)
         if (level < Stack_Height-1) {
             translate([0, 0, z_offset + b_total_height + Layer_Gap])
@@ -370,4 +374,3 @@ for (plate = plates) {
             mirrored_base_plate(plate, plate_number);
     }
 }
-
