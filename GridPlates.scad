@@ -194,8 +194,22 @@ module gridfinity_cutting_tool_main(offset_x, offset_y) {
     middle_z_offset=top_z_offset-b_center_height;
     bottom_z_offset=middle_z_offset-b_bottom_chamfer_height;
     union() {
-        hull() for(x=[-offset_x,offset_x]) for(y=[-offset_y,offset_y]) translate([x,y,top_z_offset]) linear_extrude(height=b_tool_top_chamfer_height,scale=[b_tool_top_scale,b_tool_top_scale]) circle(r=b_corner_center_radius);
-        hull() for(x=[-offset_x,offset_x]) for(y=[-offset_y,offset_y]) translate([x,y,middle_z_offset]) {cylinder(r=b_corner_center_radius,h=b_center_height,center=false);mirror([0,0,1]) linear_extrude(height=b_tool_bottom_chamfer_height,scale=[b_tool_bottom_scale,b_tool_bottom_scale]) circle(r=b_corner_center_radius);}
+        hull()
+            for (x = [-offset_x, offset_x])
+                for (y = [-offset_y, offset_y])
+                    translate([x, y, top_z_offset])
+                        linear_extrude(height = b_tool_top_chamfer_height, scale = [b_tool_top_scale, b_tool_top_scale])
+                            circle(r = b_corner_center_radius);
+
+        hull()
+            for (x = [-offset_x, offset_x])
+                for (y = [-offset_y, offset_y])
+                    translate([x, y, middle_z_offset]) {
+                        cylinder(r = b_corner_center_radius, h = b_center_height, center = false);
+                        mirror([0, 0, 1])
+                            linear_extrude(height = b_tool_bottom_chamfer_height, scale = [b_tool_bottom_scale, b_tool_bottom_scale])
+                                circle(r = b_corner_center_radius);
+                    }
     }
 }
 module interlock_cutting_tool_left(start_tab_amount, end_tab_amount, units) {
