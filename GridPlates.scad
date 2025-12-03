@@ -79,9 +79,9 @@ Base_Unit_Width_Depth = 42;
 /* [Hidden] */
 
 // --- Gridfinity System Dimensions ---
-b_top_chamfer_height = 1.9;
-b_center_height = 1.8;
-b_bottom_chamfer_height = 0.8;
+b_top_chamfer_height = 1.4;
+b_center_height = 1.2;
+b_bottom_chamfer_height = 1.4;
 b_corner_center_inset = 4;
 b_corner_center_radius = 1.85;
 
@@ -125,7 +125,7 @@ b_total_height = b_top_chamfer_height + b_center_height + b_bottom_chamfer_heigh
 b_tool_top_chamfer_height = b_top_chamfer_height + cut_overshoot;
 b_tool_bottom_chamfer_height = b_bottom_chamfer_height + cut_overshoot;
 b_tool_top_scale = (b_corner_center_radius + b_tool_top_chamfer_height) / b_corner_center_radius;
-b_tool_bottom_scale = (b_corner_center_radius - b_tool_bottom_chamfer_height) / b_corner_center_radius;
+b_tool_bottom_scale = (b_corner_center_radius + b_tool_bottom_chamfer_height) / b_corner_center_radius;
 polyline_data_1 = Interlock_Type == 2 ? looser_interlock_profile_1 : standard_interlock_profile_1;
 polyline_data_2 = Interlock_Type == 2 ? looser_interlock_profile_2 : standard_interlock_profile_2;
 function tessellate_arc(start, end, bulge, segments = 8) = let(chord=end-start,chord_length=norm(chord),sagitta=abs(bulge)*chord_length/2,radius=(chord_length/2)^2/(2*sagitta)+sagitta/2,center_height=radius-sagitta,center_offset=[-chord.y,chord.x]*center_height/chord_length,center=(start+end)/2+(bulge>=0?center_offset:-center_offset),start_angle=atan2(start.y-center.y,start.x-center.x),end_angle=atan2(end.y-center.y,end.x-center.x),angle_diff=(bulge>=0)?(end_angle<start_angle?end_angle-start_angle+360:end_angle-start_angle):(start_angle<end_angle?start_angle-end_angle+360:start_angle-end_angle),num_segments=max(1,round(segments*(angle_diff/360))),angle_step=angle_diff/num_segments) [for(i=[0:num_segments-1]) let(angle=start_angle+(bulge>=0?1:-1)*i*angle_step) center+radius*[cos(angle),sin(angle)]];
@@ -204,12 +204,16 @@ module gridfinity_cutting_tool_main(offset_x, offset_y) {
         hull()
             for (x = [-offset_x, offset_x])
                 for (y = [-offset_y, offset_y])
-                    translate([x, y, middle_z_offset]) {
+                    translate([x, y, middle_z_offset])
                         cylinder(r = b_corner_center_radius, h = b_center_height, center = false);
+                    
+        hull()
+            for (x = [-offset_x, offset_x])
+                for (y = [-offset_y, offset_y])
+                    translate([x, y, middle_z_offset]) 
                         mirror([0, 0, 1])
                             linear_extrude(height = b_tool_bottom_chamfer_height, scale = [b_tool_bottom_scale, b_tool_bottom_scale])
                                 circle(r = b_corner_center_radius);
-                    }
     }
 }
 module interlock_cutting_tool_left(start_tab_amount, end_tab_amount, units) {
