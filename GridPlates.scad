@@ -230,13 +230,15 @@ module bottom_chamfer_cutter(units) {
     total_overshoot=max_margin+cut_overshoot;side_length=Bottom_Edge_Chamfer_in_mm+cut_overshoot*2;extrude_length=units*Base_Unit_Width_Depth+total_overshoot*2;
     translate([-cut_overshoot,-total_overshoot,-cut_overshoot]) rotate([-90,0,0]) linear_extrude(height=extrude_length) polygon(points=[[0,0],[0,-side_length],[side_length,0]]);
 }
-module emboss_plate_number_cutter(number, plate_width_units, plate_depth_units) {
+module emboss_plate_number_cutter(number, plate_width_units, plate_depth_units, left_margin) {
     if (Enable_Numbering && plate_width_units > 1) {
         use_vertical = (number >= 10);
         y_center_pos = (plate_depth_units * Base_Unit_Width_Depth) / 2;
-        translate([Base_Unit_Width_Depth, y_center_pos, -cut_overshoot]) {
-            linear_extrude(height = Number_Depth + cut_overshoot * 2) {
-                mirror([1, 0, 0]) { 
+        x_face = -left_margin;
+        // Engrave into the outer left wall: rotate text to extrude along -X so it reads correctly from the left side.
+        translate([x_face + Number_Depth + cut_overshoot, y_center_pos, b_total_height / 2]) {
+            rotate([0, -90, 0]) {
+                linear_extrude(height = Number_Depth + cut_overshoot * 2) {
                     if (use_vertical) {
                         first_digit = floor(number / 10);
                         second_digit = number % 10;
@@ -280,7 +282,7 @@ module sub_baseplate(x_depth,y_depth,x_start_offset,x_end_offset,y_start_offset,
             if (is_right && is_back) translate([w * Base_Unit_Width_Depth + m_r, d * Base_Unit_Width_Depth + m_b, cutter_z]) cylinder(r = Corner_Cutout_in_mm, h = cutter_height);
             if (is_right && is_front) translate([w * Base_Unit_Width_Depth + m_r, -m_f, cutter_z]) cylinder(r = Corner_Cutout_in_mm, h = cutter_height);
         }
-        emboss_plate_number_cutter(plate_number, w, d);
+        emboss_plate_number_cutter(plate_number, w, d, m_l);
     }
 }
 module sub_baseplate_from_list(plate, plate_number) { 
