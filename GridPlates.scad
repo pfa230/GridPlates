@@ -124,7 +124,6 @@ gridplates_min_margin_for_full_tab = 2.75;
 b_total_height = b_top_chamfer_height + b_center_height + b_bottom_chamfer_height;
 b_tool_top_chamfer_height = b_top_chamfer_height + cut_overshoot;
 b_tool_bottom_chamfer_height = b_bottom_chamfer_height + cut_overshoot;
-b_tool_bottom_vertical_height = 0;
 b_tool_top_scale = (b_corner_center_radius + b_tool_top_chamfer_height) / b_corner_center_radius;
 b_tool_bottom_scale = (b_corner_center_radius - b_tool_bottom_chamfer_height) / b_corner_center_radius;
 polyline_data_1 = Interlock_Type == 2 ? looser_interlock_profile_1 : standard_interlock_profile_1;
@@ -197,7 +196,6 @@ module gridfinity_cutting_tool_main(offset_x, offset_y) {
     union() {
         hull() for(x=[-offset_x,offset_x]) for(y=[-offset_y,offset_y]) translate([x,y,top_z_offset]) linear_extrude(height=b_tool_top_chamfer_height,scale=[b_tool_top_scale,b_tool_top_scale]) circle(r=b_corner_center_radius);
         hull() for(x=[-offset_x,offset_x]) for(y=[-offset_y,offset_y]) translate([x,y,middle_z_offset]) {cylinder(r=b_corner_center_radius,h=b_center_height,center=false);mirror([0,0,1]) linear_extrude(height=b_tool_bottom_chamfer_height,scale=[b_tool_bottom_scale,b_tool_bottom_scale]) circle(r=b_corner_center_radius);}
-        if(b_tool_bottom_vertical_height>0) {tool_bottom_z_offset=bottom_z_offset-b_tool_bottom_vertical_height;hull() for(x=[-offset_x,offset_x]) for(y=[-offset_y,offset_y]) translate([x,y,tool_bottom_z_offset]) cylinder(r=b_corner_center_radius*b_tool_bottom_scale,h=b_tool_bottom_vertical_height,center=false);}
     }
 }
 module interlock_cutting_tool_left(start_tab_amount, end_tab_amount, units) {
