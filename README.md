@@ -13,18 +13,22 @@ A customizable 3D printable baseplate system based on the excellent [Gridfinity 
 
 ## Quick Start
 
-1.  **Open the `.scad` file** in [OpenSCAD](https://openscad.org/).
-2.  **Set your dimensions**:
+1. **Open the `.scad` file** in [OpenSCAD](https://openscad.org/).
+2. **Set your dimensions**:
+
     ```openscad
     Width_in_mm = 325;  // Your desired width in mm
     Depth_in_mm = 275;  // Your desired depth in mm
     ```
-3.  **Select your build plate size**:
+
+3. **Select your build plate size**:
+
     ```openscad
     Build_Plate_Size = 236; // Standard X1/P1/A1 size
     ```
-4.  **Configure options** as needed (clearance, tabs, numbering, etc.). The script will show you a preview of the final assembled layout.
-5.  **Follow the instructions below** to export a single 3MF file containing all your baseplate pieces.
+
+4. **Configure options** as needed (clearance, tabs, numbering, etc.). The script will show you a preview of the final assembled layout.
+5. **Follow the instructions below** to export a single 3MF file containing all your baseplate pieces.
 
 ## How to Export a Multi-Plate 3MF File
 
@@ -36,28 +40,30 @@ Follow these steps precisely for a successful export.
 
 You only need to do this once. This setting is required for OpenSCAD to export each panel as a distinct object within the 3MF file.
 
-1.  In the OpenSCAD top menu, go to **Edit -> Preferences**.
-2.  Navigate to the **Features** tab.
-3.  Find and **check the box** next to **`lazy-union`**.
-4.  Click **OK**.
+1. In the OpenSCAD top menu, go to **Edit -> Preferences**.
+2. Navigate to the **Features** tab.
+3. Find and **check the box** next to **`lazy-union`**.
+4. Click **OK**.
 
 ### Step 2: Generate and Export the 3MF File
 
-1.  In the script, find the `[Export Options]` section.
-2.  Change `Enable_3MF_Export_Mode` from `false` to `true`:
+1. In the script, find the `[Export Options]` section.
+2. Change `Enable_3MF_Export_Mode` from `false` to `true`:
+
     ```openscad
     Enable_3MF_Export_Mode = true;
     ```
-3.  **Render the model by pressing F6**.
+
+3. **Render the model by pressing F6**.
     - You will see all the panels piled on top of each other at the center. **This is the correct preview for 3MF export mode.**
-4.  Go to **File -> Export -> Export as 3MF...** and save your file.
+4. Go to **File -> Export -> Export as 3MF...** and save your file.
 
 ### Step 3: Import the 3MF into Your Slicer
 
-1.  Open OrcaSlicer, Bambu Studio, or another modern slicer.
-2.  Import the `.3mf` file you just saved.
-3.  A dialog box will appear asking: **"Load these files as a single object with multiple parts?"**. Click **YES**.
-4.  All panels will appear stacked on the first build plate. Click the **Arrange** button in the top toolbar.
+1. Open OrcaSlicer, Bambu Studio, or another modern slicer.
+2. Import the `.3mf` file you just saved.
+3. A dialog box will appear asking: **"Load these files as a single object with multiple parts?"**. Click **YES**.
+4. All panels will appear stacked on the first build plate. Click the **Arrange** button in the top toolbar.
 
 Your slicer will now automatically arrange the panels, creating as many new plates as needed to fit all the parts.
 

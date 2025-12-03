@@ -39,9 +39,9 @@ Bottom_Edge_Chamfer_in_mm = 0;
 // Emboss a sequential number on the bottom of each plate's first inner grid bar for easy assembly.
 Enable_Numbering = true;
 // Font size of the embossed number in millimeters.
-Number_Size = 2;
+Number_Size = 3;
 // How deep to cut the number into the base. Should be a multiple of your layer height.
-Number_Depth = 0.2;
+Number_Depth = 0.4;
 
 /* [Advanced] */
 
@@ -66,6 +66,7 @@ Debug_Mode = false;
 // Amount of extra rounding to apply to the corners. This value is limited based on the size of the margins.
 Extra_Corner_Rounding = 0;
 
+/* [Stacking] */
 
 // Number of identical plates to stack vertically, separated by support layers.
 Stack_Height = 1;
