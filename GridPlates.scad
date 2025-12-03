@@ -334,30 +334,28 @@ module mirrored_base_plate(plate, plate_number) {
 }
 
 // --- Final Assembly ---
-module assemble_and_number() {
-    for (plate = plates) {
-        // Correct Top-to-Bottom, Right-to-Left numbering by calculating each plate's rank.
-        // This logic compares each plate's physical top edge (y_end) and start position (x_start)
-        // to all other plates to determine its place in the sequence.
-        
-        current_x_start = plate[2]; // x_start_offset in grid units
-        current_y_end   = plate[5]; // y_end_offset represents the TOP edge
+for (plate = plates) {
+    // Correct Top-to-Bottom, Right-to-Left numbering by calculating each plate's rank.
+    // This logic compares each plate's physical top edge (y_end) and start position (x_start)
+    // to all other plates to determine its place in the sequence.
+    
+    current_x_start = plate[2]; // x_start_offset in grid units
+    current_y_end   = plate[5]; // y_end_offset represents the TOP edge
 
-        // 1. Count plates whose TOP EDGE is physically *higher* than this one's.
-        plates_in_rows_above = len([ for (p = plates) if (p[5] > current_y_end) 1 ]);
+    // 1. Count plates whose TOP EDGE is physically *higher* than this one's.
+    plates_in_rows_above = len([ for (p = plates) if (p[5] > current_y_end) 1 ]);
 
-        // 2. Count plates in the *same visual row* (identical top edge) but further to the *right*.
-        plates_to_the_right = len([ for (p = plates) if (p[5] == current_y_end && p[2] > current_x_start) 1 ]);
-        
-        // 3. The final number is the sum of these counts + 1 (for the plate itself).
-        plate_number = plates_in_rows_above + plates_to_the_right + 1;
+    // 2. Count plates in the *same visual row* (identical top edge) but further to the *right*.
+    plates_to_the_right = len([ for (p = plates) if (p[5] == current_y_end && p[2] > current_x_start) 1 ]);
+    
+    // 3. The final number is the sum of these counts + 1 (for the plate itself).
+    plate_number = plates_in_rows_above + plates_to_the_right + 1;
 
-        if (Enable_3MF_Export_Mode) {
+    if (Enable_3MF_Export_Mode) {
+        mirrored_base_plate(plate, plate_number);
+    } else {
+        translate(overall_centering_translation(plate))
             mirrored_base_plate(plate, plate_number);
-        } else {
-            translate(overall_centering_translation(plate))
-                mirrored_base_plate(plate, plate_number);
-        }
     }
 }
 
