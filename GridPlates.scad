@@ -34,9 +34,6 @@ Half_Sized_Filler = true;
 // Designed to fit drawers where the bottom edges are not square but rounded.
 Bottom_Edge_Chamfer_in_mm = 0;
 
-// Use with caution as this will increase warping.
-Solid_Base_Thickness_in_mm = 0;
-
 /* [Numbering Options] */
 
 // Emboss a sequential number on the bottom of each plate's first inner grid bar for easy assembly.
@@ -125,10 +122,10 @@ cut_overshoot = 0.1;
 non_gridplates_edge_clearance = 0.25;
 min_corner_radius = 1;
 gridplates_min_margin_for_full_tab = 2.75;
-b_total_height = b_top_chamfer_height + b_center_height + b_bottom_chamfer_height + b_bottom_vertical_height + Solid_Base_Thickness_in_mm;
+b_total_height = b_top_chamfer_height + b_center_height + b_bottom_chamfer_height + b_bottom_vertical_height;
 b_tool_top_chamfer_height = b_top_chamfer_height + cut_overshoot;
-b_tool_bottom_chamfer_height = b_bottom_chamfer_height + (Solid_Base_Thickness_in_mm > 0 || b_bottom_vertical_height > 0 ? 0 : cut_overshoot);
-b_tool_bottom_vertical_height = b_bottom_vertical_height > 0 ? (b_bottom_vertical_height + (Solid_Base_Thickness_in_mm > 0 ? 0 : cut_overshoot)) : 0;
+b_tool_bottom_chamfer_height = b_bottom_chamfer_height + (b_bottom_vertical_height > 0 ? 0 : cut_overshoot);
+b_tool_bottom_vertical_height = b_bottom_vertical_height > 0 ? (b_bottom_vertical_height + cut_overshoot) : 0;
 b_tool_top_scale = (b_corner_center_radius + b_tool_top_chamfer_height) / b_corner_center_radius;
 b_tool_bottom_scale = (b_corner_center_radius - b_tool_bottom_chamfer_height) / b_corner_center_radius;
 polyline_data_1 = Interlock_Type == 2 ? looser_interlock_profile_1 : standard_interlock_profile_1;
