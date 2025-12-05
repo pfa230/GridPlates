@@ -23,6 +23,17 @@ Clearance = 0;
 
 Build_Plate_Size=236; //[180: Small (A1 Mini), 236: Standard (X1/P1/A1), 350: Large (350mm)]
 
+/* [Stacking] */
+
+// Number of identical plates to stack vertically, separated by support layers.
+Stack_Height = 1;
+
+// Support interface between stacked plates.
+Support_Layer_Height = 0.2;
+
+// Gap between plates and support layers
+Layer_Gap = 0.01;
+
 /* [Options] */
 
 // Type of interlocking mechanism between plates.
@@ -41,7 +52,7 @@ Enable_Numbering = true;
 // Font size of the embossed number in millimeters.
 Number_Size = 3;
 // How deep to cut the number into the base. Should be a multiple of your layer height.
-Number_Depth = 0.2;
+Number_Depth = 0.3;
 
 /* [Advanced] */
 
@@ -66,17 +77,6 @@ Debug_Mode = false;
 // Amount of extra rounding to apply to the corners. This value is limited based on the size of the margins.
 Extra_Corner_Rounding = 0;
 
-/* [Stacking] */
-
-// Number of identical plates to stack vertically, separated by support layers.
-Stack_Height = 1;
-
-// Support interface between stacked plates.
-Support_Layer_Height = 0.2;
-
-// Gap between plates and support layers
-Layer_Gap = 0.01;
-
 /* [Export Options] */
 
 // Set to 'true' to center all plates at the origin for multi-plate 3MF export.
@@ -90,9 +90,9 @@ Base_Unit_Width_Depth = 42;
 /* [Hidden] */
 
 // --- Gridfinity System Dimensions ---
-b_top_chamfer_height = 1.4;
-b_center_height = 1.2;
-b_bottom_chamfer_height = 1.4;
+b_top_chamfer_height = 1.6;
+b_center_height = 1.4;
+b_bottom_chamfer_height = 1.2;
 b_corner_center_inset = 4;
 b_corner_center_radius = 1.85;
 
@@ -323,7 +323,7 @@ module sub_baseplate(x_depth,y_depth,x_start_offset,x_end_offset,y_start_offset,
                 emboss_plate_number_cutter(plate_number, w, d, face_offset_x);
             }
         }
-        // Support layer projected from the actual top profile of the finished body (between stacks)
+        // Support layer projected from the actual bottom profile of the finished body (between stacks)
         if (level < Stack_Height-1) {
             translate([0, 0, z_offset + b_total_height + Layer_Gap])
                 linear_extrude(height = Support_Layer_Height)
